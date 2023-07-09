@@ -1,0 +1,40 @@
+{
+  "name": "core",
+  "version": "1.0.0",
+  "description": "core",
+  "main": "dist/index.js",
+  "scripts": {
+    "clean": "npx rimraf dist",
+    "build": "npm run clean && npx eslint . --fix && tsc --project ./ --outDir dist && copy .env .\\dist\\.env && copy .env.test .\\dist\\.env.test",
+    "lint": "npx eslint ../ --fix",
+    "prettier": "prettier --config .prettierrc **/*.ts --write"
+  },
+  "author": "david ronsain",
+  "license": "MIT",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.8.14",
+    "@grpc/proto-loader": "^0.7.7",
+    "axios": "^1.4.0",
+    "body-parser": "^1.20.2",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
+    "dotenv": "^16.0.3",
+    "jsonwebtoken": "^9.0.0",
+    "mongodb": "^5.6.0",
+    "multer": "^1.4.5-lts.1",
+    "reflect-metadata": "^0.1.13",
+    "rimraf": "^5.0.1",
+    "routing-controllers": "^0.10.4",
+    "typedi": "^0.10.0",
+    "typeorm": "^0.3.16"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.19.2",
+    "@types/jsonwebtoken": "^9.0.2",
+    "@types/multer": "^1.4.7",
+    "@types/node": "^20.2.4",
+    "nodemon": "^2.0.22",
+    "ts-node": "^10.9.1",
+    "typescript": "5.0.4"
+  }
+}

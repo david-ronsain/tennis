@@ -1,0 +1,29 @@
+[{
+  "creationYear": 1877,
+  "name": "Wimbledon",
+  "category": "GRAND_SLAM",
+  "prizeMoney": 44700000,
+  "country": "UK",
+  "surface": "GRASS"
+},{
+  "creationYear": 1891,
+  "name": "Roland Garros",
+  "category": "GRAND_SLAM",
+  "prizeMoney": 49600000,
+  "country": "FR",
+  "surface": "CLAY"
+},{
+  "creationYear": 1905,
+  "name": "Australian Open",
+  "category": "GRAND_SLAM",
+  "prizeMoney": 55000000,
+  "country": "AU",
+  "surface": "OUTDOOR_HARD"
+},{
+  "creationYear": 1881,
+  "name": "US Open",
+  "category": "GRAND_SLAM",
+  "prizeMoney": 53000000,
+  "country": "US",
+  "surface": "OUTDOOR_HARD"
+}]

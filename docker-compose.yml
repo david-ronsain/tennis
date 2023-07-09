@@ -1,0 +1,37 @@
+services:
+  mongo:
+    image: mongo
+    volumes:
+      - mongodata:/app
+    restart: always
+    expose:
+      - 1234
+    environment:
+      MONGO_INITDB_ROOT_USERNAME:
+      MONGO_INITDB_ROOT_PASSWORD:
+    networks:
+      - main
+  backplayers:
+    build:
+      context: ./back/players/
+      dockerfile: Dockerfile
+    volumes:
+      - backplayers:/app
+    restart: always
+    expose:
+      - 3000
+    depends_on:
+      - mongo
+    networks:
+      - main
+
+volumes:
+  backcalendar:
+  backmatches:
+  backplayers:
+  backtournament:
+  backsocket:
+  mongodata:
+
+networks:
+  main:

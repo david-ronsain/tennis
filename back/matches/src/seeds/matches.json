@@ -1,0 +1,31 @@
+[{
+  "team1": {
+    "number": 1
+  },
+  "team2": {
+    "number": 2
+  },
+  "round": "SEMI",
+  "number": 1,
+  "state": "NOT_BEGUN"
+}, {
+  "team1": {
+    "number": 1
+  },
+  "team2": {
+    "number": 2
+  },
+  "round": "SEMI",
+  "number": 2,
+  "state": "NOT_BEGUN"
+}, {
+  "team1": {
+    "number": 1
+  },
+  "team2": {
+    "number": 2
+  },
+  "round": "FINAL",
+  "number": 3,
+  "state": "NOT_BEGUN"
+}]

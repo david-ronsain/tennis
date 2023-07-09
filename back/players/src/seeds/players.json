@@ -1,0 +1,64 @@
+[{
+  "proSince": 2001,
+  "infos": {
+    "firstName": "Rafael",
+    "lastName": "Nadal",
+    "dateOfBirth": "1986-06-03",
+    "picture": "https://cdn.tennistemple.com/images/upload/player/Rafael_Nadal_100.jpg",
+    "country": "ES",
+    "category": "ATP"
+  },
+  "style": {
+    "mainHand": "LEFT",
+    "backhand": "TWO_HANDED"
+  },
+  "createdAt": "2023-06-21T12:29:32.427Z"
+},
+{
+  "proSince": 1998,
+  "infos": {
+    "firstName": "Roger",
+    "lastName": "Federer",
+    "dateOfBirth": "1981-08-08",
+    "picture": "https://cdn.tennistemple.com/images/upload/player/Roger-Federer-42.jpg",
+    "country": "CH",
+    "category": "ATP"
+  },
+  "style": {
+    "mainHand": "RIGHT",
+    "backhand": "ONE_HANDED"
+  },
+  "createdAt": "2023-06-21T12:34:45.158Z"
+},
+{
+  "proSince": 2003,
+  "infos": {
+    "firstName": "Novak",
+    "lastName": "Djokovic",
+    "dateOfBirth": "1987-05-22",
+    "picture": "https://cdn.tennistemple.com/images/upload/player/Novak_Djokovic_64.jpg",
+    "country": "RS",
+    "category": "ATP"
+  },
+  "style": {
+    "mainHand": "RIGHT",
+    "backhand": "TWO_HANDED"
+  },
+  "createdAt": "2023-06-21T12:44:07.045Z"
+},
+{
+  "proSince": 2005,
+  "infos": {
+    "firstName": "Andy",
+    "lastName": "Murray",
+    "dateOfBirth": "1987-05-15",
+    "picture": "https://cdn.tennistemple.com/images/upload/player/Andy_Murray_49.jpg",
+    "country": "UK",
+    "category": "ATP"
+  },
+  "style": {
+    "mainHand": "RIGHT",
+    "backhand": "TWO_HANDED"
+  },
+  "createdAt": "2023-06-21T12:44:07.045Z"
+}]

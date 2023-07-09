@@ -1,0 +1,7 @@
+export enum MatchState {
+  NOT_BEGUN = 'NOT_BEGUN',
+  IN_PROGRESS = 'IN_PROGRESS',
+  FINISHED = 'FINISHED',
+  SUSPENDED = 'SUSPENDED',
+  RETIRED = 'RETIRED'
+}

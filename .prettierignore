@@ -1,0 +1,6 @@
+**/**/dist
+**/**/__tests
+**/**/node_modules
+dist
+__tests__
+node_modules

@@ -1,0 +1,25 @@
+[{
+  "startDate": "2023-07-03",
+  "endDate": "2023-07-16",
+  "tournament": null,
+  "prizeMoney": 12,
+  "draw": {"SINGLES": {"ATP": ["aaaaaaaaaaaaaaaaaaaaaaaa"], "WTA": []}, "DOUBLES": {"ATP": [], "WTA": []}}
+},{
+  "startDate": "2023-05-22",
+  "endDate": "2023-06-11",
+  "tournament": null,
+  "prizeMoney": 12,
+  "draw": {"SINGLES": {"ATP": [], "WTA": ["bbbbbbbbbbbbbbbbbbbbbbbb"]}, "DOUBLES": {"ATP": [], "WTA": []}}
+},{
+  "startDate": "2023-01-16",
+  "endDate": "2023-01-29",
+  "tournament": null,
+  "prizeMoney": 12,
+  "draw": {"SINGLES": {"ATP": [], "WTA": []}, "DOUBLES": {"ATP": ["cccccccccccccccccccccccc"], "WTA": []}}
+},{
+  "startDate": "2023-08-28",
+  "endDate": "2023-09-10",
+  "tournament": null,
+  "prizeMoney": 12,
+  "draw": {"SINGLES": {"ATP": [], "WTA": []}, "DOUBLES": {"ATP": [], "WTA": ["dddddddddddddddddddddddd"]}}
+}]

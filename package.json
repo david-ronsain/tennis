@@ -1,0 +1,30 @@
+{
+  "name": "tennis",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "start:dev": "nx run-many -t start:dev --parallel 10",
+    "start:prod": "nx run-many -t node dist/index.ts --parallel 10",
+    "build": "nx run-many -t build --parallel",
+    "test": "nx run-many -t test --parallel",
+    "lint": "nx run-many -t lint --parallel",
+    "prettier": "nx run-many -t prettier --parallel"
+  },
+  "private": true,
+  "devDependencies": {
+    "@types/jest": "^29.5.2",
+    "@typescript-eslint/eslint-plugin": "^5.60.1",
+    "@typescript-eslint/parser": "^5.60.1",
+    "eslint": "^8.43.0",
+    "nx": "16.4.2",
+    "nx-cloud": "16.0.5",
+    "prettier": "^2.8.8",
+    "ts-jest": "^29.1.0"
+  },
+  "workspaces": [
+    "back/*",
+    "core",
+    "front/*"
+  ]
+}
+
