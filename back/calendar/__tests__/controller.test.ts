@@ -19,6 +19,10 @@ beforeAll(async () => {
     JSON.parse(JSON.stringify(data)).forEach((t: ITournament, index: number) => {
         calendar[index].prizeMoney = t.prizeMoney
         calendar[index].tournament = new ObjectId(t._id)
+        calendar[index].draw.SINGLES.ATP = calendar[index].draw.SINGLES.ATP.map((m: string) => new ObjectId(m))
+        calendar[index].draw.SINGLES.WTA = calendar[index].draw.SINGLES.WTA.map((m: string) => new ObjectId(m))
+        calendar[index].draw.DOUBLES.ATP = calendar[index].draw.DOUBLES.ATP.map((m: string) => new ObjectId(m))
+        calendar[index].draw.DOUBLES.WTA = calendar[index].draw.DOUBLES.WTA.map((m: string) => new ObjectId(m))
     })
     await client.db(config.CORE.DB.MONGO.DB_NAME).collection('calendar').insertMany(calendar)
     cursor = client.db(config.CORE.DB.MONGO.DB_NAME).collection('calendar').find()
@@ -38,7 +42,6 @@ afterAll(async () => {
 describe("GET /calendar", () => {
     it("should return all tournaments between two dates", async () => {
         const res = await request(app).get("/calendar?startDate=2023-01-01&endDate=2023-12-31");
-        //console.log(res)
         expect(res.statusCode).toBe(200);
         expect(res.body.length).toBe(calendar.length);
     });

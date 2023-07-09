@@ -24,54 +24,62 @@ export class CalendarService {
    * @returns
    */
   async list(request: GetCalendarRequest): Promise<CalendarResponse[]> {
-    const filters: {'$and': any[]} = {'$and': []};
+    const filters: { $and: any[] } = { $and: [] };
 
     if (request.name.length) {
-      filters['$and'].push({name: { $regex: '.*' + request.name + '.*', $options: 'i' }})
+      filters['$and'].push({
+        name: { $regex: '.*' + request.name + '.*', $options: 'i' }
+      });
     }
 
     if (request.tournament.length) {
-      filters['$and'].push({tournament: new ObjectId(request.tournament)})
+      filters['$and'].push({ tournament: new ObjectId(request.tournament) });
     }
 
     if (request.startDate.length && request.endDate.length) {
       filters['$and'].push({
         $or: [
           {
-             $and: [
-              {startDate: {$gte: request.startDate}},
-              {startDate: {$lte: request.endDate}}
-            ] 
-          },
-          {
             $and: [
-              {endDate: {$gte: request.startDate}},
-              {endDate: {$lte: request.endDate}}
+              { startDate: { $gte: request.startDate } },
+              { startDate: { $lte: request.endDate } }
             ]
           },
           {
             $and: [
-              {startDate: {$lte: request.startDate}},
-              {endDate: {$gte: request.startDate, $lte: request.endDate}}
+              { endDate: { $gte: request.startDate } },
+              { endDate: { $lte: request.endDate } }
             ]
           },
           {
             $and: [
-              {startDate: {$gte: request.startDate, $lte: request.endDate}},
-              {endDate: {$lte: request.endDate}}
+              { startDate: { $lte: request.startDate } },
+              { endDate: { $gte: request.startDate, $lte: request.endDate } }
             ]
           },
           {
             $and: [
-              {startDate: {$lte: request.startDate}},
-              {endDate: {$gte: request.endDate}}
+              { startDate: { $gte: request.startDate, $lte: request.endDate } },
+              { endDate: { $lte: request.endDate } }
+            ]
+          },
+          {
+            $and: [
+              { startDate: { $lte: request.startDate } },
+              { endDate: { $gte: request.endDate } }
             ]
           }
         ]
-      })
+      });
     }
 
-    return await (await CalendarRepository).getList(filters['$and'].length ? filters : {}, request.skip, request.results)
+    return await (
+      await CalendarRepository
+    ).getList(
+      filters['$and'].length ? filters : {},
+      request.skip,
+      request.results
+    );
   }
   /**
    * Returns the number of all calendars filtered and paginated
@@ -79,54 +87,58 @@ export class CalendarService {
    * @returns
    */
   async count(request: GetCalendarRequest): Promise<number> {
-    const filters: {'$and': any[]} = {'$and': []};
+    const filters: { $and: any[] } = { $and: [] };
 
     if (request.name.length) {
-      filters['$and'].push({name: { $regex: '.*' + request.name + '.*', $options: 'i' }})
+      filters['$and'].push({
+        name: { $regex: '.*' + request.name + '.*', $options: 'i' }
+      });
     }
 
     if (request.tournament.length) {
-      filters['$and'].push({tournament: new ObjectId(request.tournament)})
+      filters['$and'].push({ tournament: new ObjectId(request.tournament) });
     }
 
     if (request.startDate.length && request.endDate.length) {
       filters['$and'].push({
         $or: [
           {
-             $and: [
-              {startDate: {$gte: request.startDate}},
-              {startDate: {$lte: request.endDate}}
-            ] 
-          },
-          {
             $and: [
-              {endDate: {$gte: request.startDate}},
-              {endDate: {$lte: request.endDate}}
+              { startDate: { $gte: request.startDate } },
+              { startDate: { $lte: request.endDate } }
             ]
           },
           {
             $and: [
-              {startDate: {$lte: request.startDate}},
-              {endDate: {$gte: request.startDate, $lte: request.endDate}}
+              { endDate: { $gte: request.startDate } },
+              { endDate: { $lte: request.endDate } }
             ]
           },
           {
             $and: [
-              {startDate: {$gte: request.startDate, $lte: request.endDate}},
-              {endDate: {$lte: request.endDate}}
+              { startDate: { $lte: request.startDate } },
+              { endDate: { $gte: request.startDate, $lte: request.endDate } }
             ]
           },
           {
             $and: [
-              {startDate: {$lte: request.startDate}},
-              {endDate: {$gte: request.endDate}}
+              { startDate: { $gte: request.startDate, $lte: request.endDate } },
+              { endDate: { $lte: request.endDate } }
+            ]
+          },
+          {
+            $and: [
+              { startDate: { $lte: request.startDate } },
+              { endDate: { $gte: request.endDate } }
             ]
           }
         ]
-      })
+      });
     }
-    
-    return await (await CalendarRepository).count(filters['$and'].length ? filters : {})
+
+    return await (
+      await CalendarRepository
+    ).count(filters['$and'].length ? filters : {});
   }
 
   /**
@@ -150,10 +162,10 @@ export class CalendarService {
     if (!calendarSAtp && !calendarDAtp && !calendarSWta && !calendarDWta) {
       throw new HttpError(404, 'calendar not found');
     }
-    
-    const cal = calendarSAtp ?? calendarDAtp ?? calendarSWta ?? calendarDWta
 
-    return (JSON.parse(JSON.stringify(cal)) as Calendar);
+    const cal = calendarSAtp ?? calendarDAtp ?? calendarSWta ?? calendarDWta;
+
+    return JSON.parse(JSON.stringify(cal)) as Calendar;
   }
 
   /**
@@ -296,14 +308,16 @@ export class CalendarService {
    * Returns the draw for a calendar
    * @param id Calendar ID
    * @throws HttpError
-   * @returns 
+   * @returns
    */
-  async getDraw(id: string): Promise<Record<MatchType, Record<PlayerCategory, IMatch[]>> | undefined> {
-      const draw = await (await CalendarRepository).getDraw(id);
-      if (!draw) {
-        throw new HttpError(404, 'draw not found')
-      }
+  async getDraw(
+    id: string
+  ): Promise<Record<MatchType, Record<PlayerCategory, IMatch[]>> | undefined> {
+    const draw = await (await CalendarRepository).getDraw(id);
+    if (!draw) {
+      throw new HttpError(404, 'draw not found');
+    }
 
-      return draw;
+    return draw;
   }
 }

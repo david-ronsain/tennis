@@ -12,7 +12,7 @@ import {
 } from 'class-validator';
 import { IMatch, IScore, ITeam } from '../interfaces/IMatch';
 import { ObjectId } from 'mongodb';
-import { MatchType, PlayerCategory, MatchState, MatchRound } from '../enums';
+import { PlayerCategory, MatchState, MatchRound } from '../enums';
 
 class TeamRequest implements ITeam {
   @IsOptional()

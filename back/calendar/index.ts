@@ -4,7 +4,7 @@ import { config } from 'core/config/config';
 import { routingControllerOptions } from './config/routingControllerOptions';
 import { useExpressServer } from 'routing-controllers';
 import { mongoLoader, swaggerLoader, winstonLoader } from './src/loaders';
-import cors from 'cors'
+import cors from 'cors';
 
 const app = (module.exports = express());
 app.use(cors());

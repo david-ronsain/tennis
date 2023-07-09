@@ -41,18 +41,8 @@ export class CalendarController {
   @HttpCode(200)
   @OpenAPI({ summary: 'Returns a list of tournaments between two dates' })
   @ResponseSchema(Number)
-  async count(
-    @QueryParams() request: GetCalendarRequest
-  ): Promise<number> {
+  async count(@QueryParams() request: GetCalendarRequest): Promise<number> {
     return await service.count(request);
-  }
-
-  @Get('/:id/draw')
-  @HttpCode(200)
-  @OpenAPI({ summary: 'The draw of this calendar' })
-  @ResponseSchema('Record<MatchType, Record<PlayerCategory, IMatch[]>>')
-  async getDraw(@Param('id') id: string): Promise<Record<MatchType, Record<PlayerCategory, IMatch[]>> | undefined> {
-    return await service.getDraw(id);
   }
 
   @Get('/match/:id')
@@ -61,6 +51,16 @@ export class CalendarController {
   @ResponseSchema(Calendar)
   async getByMatchId(@Param('id') id: string): Promise<Calendar | null> {
     return await service.getByMatchId(id);
+  }
+
+  @Get('/:id/draw')
+  @HttpCode(200)
+  @OpenAPI({ summary: 'The draw of this calendar' })
+  @ResponseSchema('Record<MatchType, Record<PlayerCategory, IMatch[]>>')
+  async getDraw(
+    @Param('id') id: string
+  ): Promise<Record<MatchType, Record<PlayerCategory, IMatch[]>> | undefined> {
+    return await service.getDraw(id);
   }
 
   @Get('/:id/match/:type/:category/:number')
