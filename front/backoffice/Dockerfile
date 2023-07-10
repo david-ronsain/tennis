@@ -4,12 +4,12 @@ WORKDIR /app
 
 COPY . .
 
-RUN npm install && cd back/socket
+RUN npm install && cd front/backoffice
 
-WORKDIR /app/back/socket
+WORKDIR /app/front/backoffice
 
 RUN npm install
 
-EXPOSE 3004
+EXPOSE 2003
 
 CMD ["npm", "run", "start:dev"]

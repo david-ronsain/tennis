@@ -4,34 +4,183 @@ services:
     volumes:
       - mongodata:/app
     restart: always
-    expose:
-      - 1234
+    ports:
+      - "1234:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME:
       MONGO_INITDB_ROOT_PASSWORD:
     networks:
-      - main
+      main:
+        ipv4_address: 192.168.1.71
+  backcalendar:
+    build:
+      context: ./
+      dockerfile: ./back/calendar/Dockerfile
+    volumes:
+      - monorepo:/app
+    restart: always
+    ports:
+      - "3002:3002"
+    depends_on:
+      - mongo
+      - backmatches
+      - backplayers
+      - backtournaments
+    networks:
+      main:
+        ipv4_address: 192.168.1.72
+  backmatches:
+    build:
+      context: ./
+      dockerfile: ./back/matches/Dockerfile
+    volumes:
+      - monorepo:/app
+    restart: always
+    ports:
+      - "3003:3003"
+    depends_on:
+      - mongo
+      - backsocket
+      - backcalendar
+      - backmatches
+      - backplayers
+    networks:
+      main:
+        ipv4_address: 192.168.1.73
   backplayers:
     build:
-      context: ./back/players/
-      dockerfile: Dockerfile
+      context: ./
+      dockerfile: ./back/players/Dockerfile
     volumes:
-      - backplayers:/app
+      - monorepo:/app
     restart: always
-    expose:
-      - 3000
+    ports:
+      - "3000:3000"
     depends_on:
       - mongo
     networks:
-      - main
+      main:
+        ipv4_address: 192.168.1.74
+  backsocket:
+    build:
+      context: ./
+      dockerfile: ./back/socket/Dockerfile
+    volumes:
+      - monorepo:/app
+    restart: always
+    ports:
+      - "3004:3004"
+    depends_on:
+      - mongo
+    networks:
+      main:
+        ipv4_address: 192.168.1.75
+  backtournaments:
+    build:
+      context: ./
+      dockerfile: ./back/tournaments/Dockerfile
+    volumes:
+      - monorepo:/app
+    restart: always
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mongo
+    networks:
+      main:
+        ipv4_address: 192.168.1.76
+  frontbackoffice:
+    build:
+      context: ./
+      dockerfile: ./front/backoffice/Dockerfile
+    volumes:
+      - monorepo:/app
+    restart: always
+    ports:
+      - "2003:2003"
+    depends_on:
+      - backplayers
+      - backcalendar
+      - backmatches
+      - backtournaments
+    networks:
+      main:
+        ipv4_address: 192.168.1.77
+  fronthome:
+    build:
+      context: ./
+      dockerfile: ./front/home/Dockerfile
+    volumes:
+      - monorepo:/app
+    restart: always
+    ports:
+      - "2001:2001"
+    depends_on:
+      - backmatches
+      - backsocket
+    networks:
+      main:
+        ipv4_address: 192.168.1.78
+  frontmain:
+    build:
+      context: ./
+      dockerfile: ./front/main/Dockerfile
+    volumes:
+      - monorepo:/app
+    restart: always
+    ports:
+      - "2000:2000"
+    depends_on:
+      - backcalendar
+      - backmatches
+      - backtournaments
+      - backsocket
+      - fronthome
+      - frontbackoffice
+      - frontmatchscore
+      - fronttournaments
+    networks:
+      main:
+        ipv4_address: 192.168.1.79
+  frontmatchscore:
+    build:
+      context: ./
+      dockerfile: ./front/matchScore/Dockerfile
+    volumes:
+      - monorepo:/app
+    restart: always
+    ports:
+      - "2004:2004"
+    networks:
+      main:
+        ipv4_address: 192.168.1.80
+  fronttournaments:
+    build:
+      context: ./
+      dockerfile: ./front/tournaments/Dockerfile
+    volumes:
+      - monorepo:/app
+    restart: always
+    ports:
+      - "2002:2002"
+    depends_on:
+      - backtournaments
+      - backcalendar
+      - backsocket
+      - frontmatchscore
+    networks:
+      main:
+        ipv4_address: 192.168.1.81
 
 volumes:
-  backcalendar:
-  backmatches:
-  backplayers:
-  backtournament:
-  backsocket:
+  monorepo:
   mongodata:
 
 networks:
   main:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "192.168.1.0/24"
+          ip_range: "192.168.1.71/32"
+          gateway: "192.168.1.1"

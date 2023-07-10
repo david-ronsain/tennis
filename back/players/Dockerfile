@@ -4,11 +4,12 @@ WORKDIR /app
 
 COPY . .
 
-#RUN apt-get update
-#RUN apt-get install -f build-essential gcc
-#RUN npm install -g npm nodemon node-gyp ts-node
-#RUN export PYTHON=/usr/bin/python3.9
-#RUN npm install
+RUN npm install && cd back/players
 
-#CMD ["npm", "run", "start:prod"]
-CMD ["sleep", "infinity"]
+WORKDIR /app/back/players
+
+RUN npm install
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start:dev"]

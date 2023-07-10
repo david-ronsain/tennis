@@ -4,9 +4,12 @@ WORKDIR /app
 
 COPY . .
 
-RUN apt-get update
-RUN apt-get install build-essential gcc
-RUN npm install -g npm nodemon node-gyp ts-node
+RUN npm install && cd back/matches
+
+WORKDIR /app/back/matches
+
 RUN npm install
 
-CMD ["npm", "run", "start:prod"]
+EXPOSE 3003
+
+CMD ["npm", "run", "start:dev"]

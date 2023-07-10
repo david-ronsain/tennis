@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
         name: 'front-tournament',
         filename: 'front-tournament.js',
         exposes: {
-          './App': './src/App.vue'
+          './App': './src/components/TournamentPage.vue'
         },
         remotes: {
           'front-match-score': process.env.VITE_FRONT_MATCH_URL + 'dist/assets/front-match-score.js',
@@ -48,7 +48,8 @@ export default defineConfig(({ mode }) => {
       }
     },
     server: {
-      port: new Number(process.env.VITE_PORT).valueOf()
+      port: new Number(process.env.VITE_PORT).valueOf(),
+      host: true
     },
     define: {
       PORT: new Number(process.env.VITE_PORT).valueOf(),

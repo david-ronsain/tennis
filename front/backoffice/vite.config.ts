@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
           assetFileNames: 'assets/app-[name].css',
           chunkFileNames: "assets/chunk-[name].js",
           manualChunks: undefined,
-        }
+        },
       }
     },
     plugins: [
@@ -45,7 +45,8 @@ export default defineConfig(({ mode }) => {
       port: new Number(process.env.VITE_PORT).valueOf()
     },
     server: {
-      port: new Number(process.env.VITE_PORT).valueOf()
+      port: new Number(process.env.VITE_PORT).valueOf(),
+      host: true
     },
     define: {
       PORT: new Number(process.env.VITE_PORT).valueOf(),

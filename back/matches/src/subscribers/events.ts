@@ -3,14 +3,10 @@ import { EventEmitter } from 'events';
 import { IAssignPlayerEvent } from 'core/events';
 import axios from 'axios';
 import { config } from 'core/config/config';
-import {
-  getNbMatchesForRound,
-  getRounds
-} from 'back-calendar/src/helpers/helper';
-import { ObjectId } from 'mongodb';
+import { getNbMatchesForRound, getRounds } from 'core/helpers';
 import { MatchRound, MatchType, PlayerCategory } from 'core/enums';
 import jwt from 'jsonwebtoken';
-import { IMatch, ITeam } from 'core/interfaces';
+import { ITeam } from 'core/interfaces';
 
 const eventManager = new EventEmitter();
 

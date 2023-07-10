@@ -45,7 +45,8 @@ export default defineConfig(({ mode }) => {
       }
     },
     server: {
-      port: new Number(process.env.VITE_PORT).valueOf()
+      port: new Number(process.env.VITE_PORT).valueOf(),
+      host: true
     },
     define: {
       PORT: new Number(process.env.VITE_PORT).valueOf(),

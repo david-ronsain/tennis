@@ -4,7 +4,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import router from './router'
 
-import App from './App.vue'
+import App from './components/TournamentPage.vue'
 import { loadVuetify } from 'front-common'
 import 'vuetify/styles'
 import '@mdi/font/css/materialdesignicons.css'

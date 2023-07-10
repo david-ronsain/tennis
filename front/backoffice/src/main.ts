@@ -5,7 +5,7 @@ import { createPinia } from 'pinia'
 import { PiniaDebounce } from '@pinia/plugin-debounce'
 import debounce from 'lodash.debounce'
 import { loadVuetify } from 'front-common'
-import App from './App.vue'
+import App from './components/Backoffice.vue'
 import 'vuetify/styles'
 import '@mdi/font/css/materialdesignicons.css'
 
