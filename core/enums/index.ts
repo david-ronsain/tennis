@@ -5,8 +5,14 @@ import { MatchType, MatchTypeFilters } from './MatchType';
 import { PlayerBackhand } from './PlayerBackhand';
 import { PlayerCategory, PlayerCategoryFilter } from './PlayerCategory';
 import { PlayerMainHand } from './PlayerMainHand';
-import { TournamentCategory, TournamentCategoryFilter } from './TournamentCategory';
-import { TournamentSurface, TournamentSurfaceFilter } from './TournamentSurface';
+import {
+  TournamentCategory,
+  TournamentCategoryFilter
+} from './TournamentCategory';
+import {
+  TournamentSurface,
+  TournamentSurfaceFilter
+} from './TournamentSurface';
 
 export {
   Country,

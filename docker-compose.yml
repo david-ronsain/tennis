@@ -6,6 +6,8 @@ services:
     restart: always
     ports:
       - "1234:27017"
+    expose:
+      - 1234
     environment:
       MONGO_INITDB_ROOT_USERNAME:
       MONGO_INITDB_ROOT_PASSWORD:
@@ -15,47 +17,58 @@ services:
   backcalendar:
     build:
       context: ./
-      dockerfile: ./back/calendar/Dockerfile
-    volumes:
-      - monorepo:/app
+      dockerfile: ./Dockerfile
     restart: always
+    expose:
+      - 3002
     ports:
       - "3002:3002"
+    command: 
+      - /bin/sh
+      - -c
+      - |
+        cd /app/back/calendar
+        npm run start:dev
     depends_on:
       - mongo
-      - backmatches
-      - backplayers
-      - backtournaments
     networks:
       main:
         ipv4_address: 192.168.1.72
   backmatches:
     build:
       context: ./
-      dockerfile: ./back/matches/Dockerfile
-    volumes:
-      - monorepo:/app
+      dockerfile: ./Dockerfile
     restart: always
+    expose:
+      - 3003
     ports:
       - "3003:3003"
+    command: 
+      - /bin/sh
+      - -c
+      - |
+        cd /app/back/matches
+        npm run start:dev
     depends_on:
       - mongo
-      - backsocket
-      - backcalendar
-      - backmatches
-      - backplayers
     networks:
       main:
         ipv4_address: 192.168.1.73
   backplayers:
     build:
       context: ./
-      dockerfile: ./back/players/Dockerfile
-    volumes:
-      - monorepo:/app
+      dockerfile: ./Dockerfile
     restart: always
+    expose:
+      - 3000
     ports:
       - "3000:3000"
+    command: 
+      - /bin/sh
+      - -c
+      - |
+        cd /app/back/players
+        npm run start:dev
     depends_on:
       - mongo
     networks:
@@ -64,12 +77,18 @@ services:
   backsocket:
     build:
       context: ./
-      dockerfile: ./back/socket/Dockerfile
-    volumes:
-      - monorepo:/app
+      dockerfile: ./Dockerfile
     restart: always
+    expose:
+      - 3004
     ports:
       - "3004:3004"
+    command: 
+      - /bin/sh
+      - -c
+      - |
+        cd /app/back/socket
+        npm run start:dev
     depends_on:
       - mongo
     networks:
@@ -78,12 +97,18 @@ services:
   backtournaments:
     build:
       context: ./
-      dockerfile: ./back/tournaments/Dockerfile
-    volumes:
-      - monorepo:/app
+      dockerfile: ./Dockerfile
     restart: always
+    expose:
+      - 3001
     ports:
       - "3001:3001"
+    command: 
+      - /bin/sh
+      - -c
+      - |
+        cd /app/back/tournaments
+        npm run start:dev
     depends_on:
       - mongo
     networks:
@@ -92,88 +117,95 @@ services:
   frontbackoffice:
     build:
       context: ./
-      dockerfile: ./front/backoffice/Dockerfile
-    volumes:
-      - monorepo:/app
+      dockerfile: ./Dockerfile
     restart: always
+    expose:
+      - 2003
     ports:
       - "2003:2003"
-    depends_on:
-      - backplayers
-      - backcalendar
-      - backmatches
-      - backtournaments
+    command: 
+      - /bin/sh
+      - -c
+      - |
+        cd /app/front/backoffice
+        npm run start:dev
     networks:
       main:
         ipv4_address: 192.168.1.77
   fronthome:
     build:
       context: ./
-      dockerfile: ./front/home/Dockerfile
-    volumes:
-      - monorepo:/app
+      dockerfile: ./Dockerfile
     restart: always
+    expose:
+      - 2001
     ports:
       - "2001:2001"
-    depends_on:
-      - backmatches
-      - backsocket
+    command: 
+      - /bin/sh
+      - -c
+      - |
+        cd /app/front/home
+        npm run start:dev
     networks:
       main:
         ipv4_address: 192.168.1.78
   frontmain:
     build:
       context: ./
-      dockerfile: ./front/main/Dockerfile
-    volumes:
-      - monorepo:/app
+      dockerfile: ./Dockerfile
     restart: always
+    expose:
+      - 2000
     ports:
       - "2000:2000"
-    depends_on:
-      - backcalendar
-      - backmatches
-      - backtournaments
-      - backsocket
-      - fronthome
-      - frontbackoffice
-      - frontmatchscore
-      - fronttournaments
+    command: 
+      - /bin/sh
+      - -c
+      - |
+        cd /app/front/main
+        npm run start:dev
     networks:
       main:
         ipv4_address: 192.168.1.79
   frontmatchscore:
     build:
       context: ./
-      dockerfile: ./front/matchScore/Dockerfile
-    volumes:
-      - monorepo:/app
+      dockerfile: ./Dockerfile
     restart: always
+    expose:
+      - 2004
     ports:
       - "2004:2004"
+    command: 
+      - /bin/sh
+      - -c
+      - |
+        cd /app/front/matchScore
+        npm run start:dev
     networks:
       main:
         ipv4_address: 192.168.1.80
-  fronttournaments:
+  fronttournament:
     build:
       context: ./
-      dockerfile: ./front/tournaments/Dockerfile
-    volumes:
-      - monorepo:/app
+      dockerfile: ./Dockerfile
     restart: always
+    expose:
+      - 2002
     ports:
       - "2002:2002"
-    depends_on:
-      - backtournaments
-      - backcalendar
-      - backsocket
-      - frontmatchscore
+    command: 
+      - /bin/sh
+      - -c
+      - |
+        cd /app/front/tournament
+        npm run start:dev
     networks:
       main:
         ipv4_address: 192.168.1.81
 
 volumes:
-  monorepo:
   mongodata:
 
 networks:

@@ -3,23 +3,21 @@ import { TournamentCategory, Country, TournamentSurface } from '../enums';
 import type { ITournament, ICalendar } from '../interfaces';
 
 class TournamentResponse implements ITournament {
-    _id: ObjectId | string = undefined as unknown as string;
+  _id: ObjectId | string = undefined as unknown as string;
 
-    creationYear: number = undefined as unknown as number;
+  creationYear: number = undefined as unknown as number;
 
-    name: string = undefined as unknown as string;
+  name: string = undefined as unknown as string;
 
-    category: TournamentCategory = undefined as unknown as TournamentCategory;
+  category: TournamentCategory = undefined as unknown as TournamentCategory;
 
-    prizeMoney: number = undefined as unknown as number;
+  prizeMoney: number = undefined as unknown as number;
 
-    country: Country = undefined as unknown as Country;
+  country: Country = undefined as unknown as Country;
 
-    surface: TournamentSurface = undefined as unknown as TournamentSurface;
+  surface: TournamentSurface = undefined as unknown as TournamentSurface;
 
-    calendars?: ICalendar[] = [];
+  calendars?: ICalendar[] = [];
 }
 
-export {
-    TournamentResponse
-}
+export { TournamentResponse };
