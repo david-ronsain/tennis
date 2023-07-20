@@ -121,7 +121,9 @@ export const MatchRepository = datasource.then((source) =>
         .toArray()
         .then(
           (matches: MatchEntity[]) =>
-            JSON.parse(JSON.stringify(matches)) as MatchResponse[]
+            matches.map((m: MatchEntity) =>
+              Object.assign({}, m)
+            ) as MatchResponse[]
         );
     },
 
@@ -340,7 +342,9 @@ export const MatchRepository = datasource.then((source) =>
 
       return await cursor.toArray().then((matches: MatchEntity[]) => {
         if (matches.length) {
-          const m = JSON.parse(JSON.stringify(matches)) as MatchResponse[];
+          const m = matches.map((m: MatchEntity) =>
+            Object.assign({}, m)
+          ) as MatchResponse[];
           return m.length ? m[0] : undefined;
         }
         return undefined;

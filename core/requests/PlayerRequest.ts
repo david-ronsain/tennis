@@ -80,4 +80,9 @@ class GetPlayersRequest {
   exclude = '';
 }
 
-export { PlayerRequest, PlayerInfoRequest, PlayerStyleRequest, GetPlayersRequest };
+export {
+  PlayerRequest,
+  PlayerInfoRequest,
+  PlayerStyleRequest,
+  GetPlayersRequest
+};

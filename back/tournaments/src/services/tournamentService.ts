@@ -3,7 +3,7 @@ import { validateSync } from 'class-validator';
 import { TournamentRepository } from '../repositories/tournamentRepository';
 import { HttpError } from 'routing-controllers';
 import { ObjectId } from 'mongodb';
-import { updateTournament } from '../helpers/helper';
+import { prepareFilters, updateTournament } from '../helpers/helper';
 import { Tournament } from '../entities/tournamentEntity';
 import { InvalidRequestError } from 'core/errors';
 import { GetTournamentsRequest, TournamentRequest } from 'core/requests';
@@ -17,26 +17,14 @@ export class TournamentService {
    * @returns
    */
   async list(request: GetTournamentsRequest): Promise<Tournament[]> {
-    const filters: { name?: any; surface?: any; category?: any } = {};
-
-    if (request.name.length) {
-      filters.name = { $regex: '.*' + request.name + '.*', $options: 'i' };
-    }
-
-    if (request.category) {
-      filters.category = { $eq: request.category };
-    }
-
-    if (request.surface) {
-      filters.surface = { $eq: request.surface };
-    }
+    const filters = prepareFilters(request);
 
     return (await TournamentRepository).find({
-      where: filters,
+      where: filters.$and.length ? filters : {},
       skip:
-        parseInt(request.skip.toString()) *
-        parseInt(request.results.toString()),
-      take: parseInt(request.results.toString())
+        parseInt((request.skip ?? 0).toString()) *
+        parseInt((request.results ?? 0).toString()),
+      take: parseInt((request.results ?? 0).toString())
     });
   }
 
@@ -46,22 +34,10 @@ export class TournamentService {
    * @returns
    */
   async count(request: GetTournamentsRequest): Promise<number> {
-    const filters: Record<string, any> = {};
-
-    if (request.name.length) {
-      filters.name = { $regex: '.*' + request.name + '.*', $options: 'i' };
-    }
-
-    if (request.category) {
-      filters.category = { $eq: request.category };
-    }
-
-    if (request.surface) {
-      filters.surface = { $eq: request.surface };
-    }
+    const filters = prepareFilters(request);
 
     return (await TournamentRepository).count(
-      Object.keys(filters).length ? filters : {}
+      filters.$and.length ? filters : {}
     );
   }
 

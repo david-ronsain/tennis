@@ -1,10 +1,48 @@
-import { assignPlayersToTeams, updateCalendar, getNbMatchesForRound, drawMatches, getRounds } from '../src/helpers/helper'
+import { assignPlayersToTeams, updateCalendar, getNbMatchesForRound, drawMatches, getRounds, prepareFilters } from '../src/helpers/helper'
 import { MatchType, MatchRound, TournamentCategory } from 'core/enums'
 
-import { CalendarRequest } from 'core/requests'
+const dotenv = require('dotenv');
+dotenv.config({path: '.env.test'});
+const config = require('core/config/config').config;
+const MongoClient = require('mongodb').MongoClient;
+const client = new MongoClient(config.CORE.DB.MONGO.TYPE + '://' + config.CORE.DB.MONGO.HOST + ':' + config.CORE.DB.MONGO.PORT, {monitorCommands: true});
+import { CalendarRequest, GetCalendarRequest } from 'core/requests'
 import { ObjectId } from 'mongodb'
 import { Calendar } from '../src/entities/calendarEntity'
 import { IPlayer } from 'core/interfaces'
+const players = require('back-players/dist/src/seeds/players.json');
+import axios from "axios";
+
+
+jest.mock("axios");
+
+(axios.get as jest.Mock).mockImplementation((url: string) => {
+    if (url.toString().startsWith(`${config.PLAYERS_API.URL}`)) {
+        return Promise.resolve({data: [players[0], players[1]]})
+    }
+});
+(axios.post as jest.Mock).mockImplementation((url: string) => {
+    if (url.toString().startsWith(`${config.MATCHES_API.URL}`)) {
+        return Promise.resolve({data: {_id: new ObjectId()}})
+    }
+});
+
+/* Connecting to the database before each test. */
+beforeAll(async () => {
+    await client.connect();
+
+    await client.db(config.CORE.DB.MONGO.DB_NAME).collection('players').insertMany(players)
+    const cursorPlayers = await client.db(config.CORE.DB.MONGO.DB_NAME).collection('players').find();
+    (await cursorPlayers.toArray()).forEach((row: IPlayer) => {
+        players.find((e: IPlayer) => e.infos.lastName === row.infos.lastName)._id = row._id.toString()
+    })
+});
+
+/* Closing database connection after each test. */
+afterAll(async () => {
+    await client.db(config.CORE.DB.MONGO.DB_NAME).collection('players').drop()
+    await client.close();
+});
 
 describe("Testing the helper/updateCalendar", () => {
     it("The request and the Calendar object should match", () => {
@@ -123,23 +161,84 @@ describe('Testing the helper/getRounds', () => {
 })
 
 describe('Testing the helper/drawMatches', () => {
-    it('should draw the matches', async() => {
+    it('should draw the matches for the masters', async() => {
         let draw = await drawMatches(TournamentCategory.MASTERS, 'aaaaaaaaaaaaaaaaaaaaaaaa')
         expect(draw.SINGLES.ATP.length).toBe(3)
         expect(draw.SINGLES.WTA.length).toBe(3)
         expect(draw.DOUBLES.ATP.length).toBe(3)
         expect(draw.DOUBLES.WTA.length).toBe(3)
+    })
 
-        draw = await drawMatches(TournamentCategory.GRAND_SLAM, 'aaaaaaaaaaaaaaaaaaaaaaaa')
+    it('should draw the matches for a Gran Slam', async() => {
+        let draw = await drawMatches(TournamentCategory.GRAND_SLAM, 'aaaaaaaaaaaaaaaaaaaaaaaa')
         expect(draw.SINGLES.ATP.length).toBe(127)
         expect(draw.SINGLES.WTA.length).toBe(127)
         expect(draw.DOUBLES.ATP.length).toBe(127)
         expect(draw.DOUBLES.WTA.length).toBe(127)
+    })
 
-        draw = await drawMatches(TournamentCategory.T250, 'aaaaaaaaaaaaaaaaaaaaaaaa')
+    it('should draw the matches for a 250', async() => {
+        let draw = await drawMatches(TournamentCategory.T250, 'aaaaaaaaaaaaaaaaaaaaaaaa')
         expect(draw.SINGLES.ATP.length).toBe(31)
         expect(draw.SINGLES.WTA.length).toBe(31)
         expect(draw.DOUBLES.ATP.length).toBe(31)
         expect(draw.DOUBLES.WTA.length).toBe(31)
+    })
+})
+
+describe('Testing the helper/prepareFilters', () => {
+    it('shoud return the name filter', () => {
+        const req = new GetCalendarRequest()
+        req.name = 'test';
+        const filters = prepareFilters(req)
+        expect(filters.$and).toMatchObject([{'tournament.name': { $regex: '.*' + req.name + '.*', $options: 'i' }}])
+    })
+
+    it('shoud return the tournament filter', () => {
+        const req = new GetCalendarRequest()
+        req.tournament = '111111111111';
+        const filters = prepareFilters(req)
+        expect(filters.$and).toMatchObject([{'tournament._id': new ObjectId(req.tournament)}])
+    })
+
+    it('shoud return the dates filter', () => {
+        const req = new GetCalendarRequest()
+        req.startDate = '2023-07-01'
+        req.endDate = '2023-07-01'
+        const filters = prepareFilters(req)
+        expect(filters.$and).toMatchObject([{
+            $or: [
+              {
+                $and: [
+                  { startDate: { $gte: req.startDate } },
+                  { startDate: { $lte: req.endDate } }
+                ]
+              },
+              {
+                $and: [
+                  { endDate: { $gte: req.startDate } },
+                  { endDate: { $lte: req.endDate } }
+                ]
+              },
+              {
+                $and: [
+                  { startDate: { $lte: req.startDate } },
+                  { endDate: { $gte: req.startDate, $lte: req.endDate } }
+                ]
+              },
+              {
+                $and: [
+                  { startDate: { $gte: req.startDate, $lte: req.endDate } },
+                  { endDate: { $lte: req.endDate } }
+                ]
+              },
+              {
+                $and: [
+                  { startDate: { $lte: req.startDate } },
+                  { endDate: { $gte: req.endDate } }
+                ]
+              }
+            ]
+          }])
     })
 })

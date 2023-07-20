@@ -7,7 +7,8 @@
   },
   "round": "SEMI",
   "number": 1,
-  "state": "NOT_BEGUN"
+  "state": "NOT_BEGUN",
+  "startDate": "2023-07-05"
 }, {
   "team1": {
     "number": 1

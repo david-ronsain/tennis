@@ -1,6 +1,10 @@
 import { MatchType, PlayerCategory, TournamentCategory } from 'core/enums';
 import { CalendarEntity } from '../entities/calendarEntity';
-import { CalendarRequest, MatchRequest } from 'core/requests';
+import {
+  CalendarRequest,
+  GetCalendarRequest,
+  MatchRequest
+} from 'core/requests';
 import { IPlayer } from 'core/interfaces';
 import { Match, Team } from 'back-matches/src/entities/MatchEntity';
 import { ObjectId } from 'mongodb';
@@ -87,20 +91,18 @@ const drawMatches = async (
           if (round === firstRound) {
             const nbPlayersToDraw =
               (matchesKeys[x] as MatchType) === MatchType.DOUBLES ? 4 : 2;
-            if (config.CORE.NODE_ENV !== 'test') {
-              players = await axios
-                .get(
-                  ((config.PLAYERS_API.URL +
-                    '?category=' +
-                    matchTypesKeys[y]) as PlayerCategory) +
-                    (playersDrawn.length
-                      ? '&exclude=' + playersDrawn.join(',')
-                      : '') +
-                    '&results=' +
-                    nbPlayersToDraw.toString()
-                )
-                .then((res: { data: IPlayer[] }) => res.data);
-            }
+            players = await axios
+              .get(
+                ((config.PLAYERS_API.URL +
+                  '?category=' +
+                  matchTypesKeys[y]) as PlayerCategory) +
+                  (playersDrawn.length
+                    ? '&exclude=' + playersDrawn.join(',')
+                    : '') +
+                  '&results=' +
+                  nbPlayersToDraw.toString()
+              )
+              .then((res: { data: IPlayer[] }) => res.data);
           }
           const teams = assignPlayersToTeams(
             matchesKeys[x] as MatchType,
@@ -110,33 +112,27 @@ const drawMatches = async (
           matchRequest.team2 = teams.team2;
           playersDrawn.push(...teams.drawnPlayers);
 
-          if (config.CORE.NODE_ENV !== 'test') {
-            await axios
-              .post(config.MATCHES_API.URL, new Match(matchRequest), {
-                headers: {
-                  authorization:
-                    'Bearer ' +
-                    jwt.sign(
-                      {
-                        login: config.CORE.MASTER_LOGIN,
-                        password: config.CORE.MASTER_PASSWORD,
-                        iat: Math.floor(Date.now() / 1000) + 3600
-                      },
-                      config.CORE.JWT_SECRET,
-                      { expiresIn: config.CORE.JWT_VALIDITY }
-                    )
-                }
-              })
-              .then((res: { data: { _id: ObjectId } }) => {
-                matches[matchesKeys[x] as MatchType][
-                  matchTypesKeys[y] as PlayerCategory
-                ].push(new ObjectId(res.data._id));
-              });
-          } else {
-            matches[matchesKeys[x] as MatchType][
-              matchTypesKeys[y] as PlayerCategory
-            ].push(new ObjectId());
-          }
+          await axios
+            .post(config.MATCHES_API.URL, new Match(matchRequest), {
+              headers: {
+                authorization:
+                  'Bearer ' +
+                  jwt.sign(
+                    {
+                      login: config.CORE.MASTER_LOGIN,
+                      password: config.CORE.MASTER_PASSWORD,
+                      iat: Math.floor(Date.now() / 1000) + 3600
+                    },
+                    config.CORE.JWT_SECRET,
+                    { expiresIn: config.CORE.JWT_VALIDITY }
+                  )
+              }
+            })
+            .then((res: { data: { _id: ObjectId } }) => {
+              matches[matchesKeys[x] as MatchType][
+                matchTypesKeys[y] as PlayerCategory
+              ].push(new ObjectId(res.data._id));
+            });
         }
       }
     }
@@ -145,10 +141,64 @@ const drawMatches = async (
   return matches;
 };
 
+const prepareFilters = (request: GetCalendarRequest): { $and: any[] } => {
+  const filters: { $and: any[] } = { $and: [] };
+
+  if (request.name?.length) {
+    filters.$and.push({
+      'tournament.name': { $regex: '.*' + request.name + '.*', $options: 'i' }
+    });
+  }
+
+  if (request.tournament?.length) {
+    filters.$and.push({ 'tournament._id': new ObjectId(request.tournament) });
+  }
+
+  if (request.startDate?.length && request.endDate?.length) {
+    filters.$and.push({
+      $or: [
+        {
+          $and: [
+            { startDate: { $gte: request.startDate } },
+            { startDate: { $lte: request.endDate } }
+          ]
+        },
+        {
+          $and: [
+            { endDate: { $gte: request.startDate } },
+            { endDate: { $lte: request.endDate } }
+          ]
+        },
+        {
+          $and: [
+            { startDate: { $lte: request.startDate } },
+            { endDate: { $gte: request.startDate, $lte: request.endDate } }
+          ]
+        },
+        {
+          $and: [
+            { startDate: { $gte: request.startDate, $lte: request.endDate } },
+            { endDate: { $lte: request.endDate } }
+          ]
+        },
+        {
+          $and: [
+            { startDate: { $lte: request.startDate } },
+            { endDate: { $gte: request.endDate } }
+          ]
+        }
+      ]
+    });
+  }
+
+  return filters;
+};
+
 export {
   updateCalendar,
   assignPlayersToTeams,
   getNbMatchesForRound,
   drawMatches,
-  getRounds
+  getRounds,
+  prepareFilters
 };

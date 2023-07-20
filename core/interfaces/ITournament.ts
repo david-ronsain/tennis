@@ -19,6 +19,4 @@ interface ITournament {
   surface: TournamentSurface;
 }
 
-export { 
-  type ITournament
-};
+export { type ITournament };

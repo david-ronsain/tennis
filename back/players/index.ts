@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import express from 'express';
+
 import { config } from 'core/config/config';
 import { routingControllerOptions } from './config/routingControllerOptions';
 import { useExpressServer } from 'routing-controllers';

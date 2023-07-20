@@ -30,7 +30,7 @@ export class MatchController {
 
   @OnMessage('score_updated')
   @EmitOnSuccess('new_score')
-  async scoreUpdated(
+  scoreUpdated(
     @SocketQueryParam('token') token: string,
     @SocketIO() io: any,
     @MessageBody() match: Match

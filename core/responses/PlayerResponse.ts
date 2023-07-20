@@ -1,44 +1,45 @@
-import type { IPlayer, IPlayerInfo, IPlayerStyle } from "../interfaces";
-import { Country, PlayerBackhand, PlayerCategory, PlayerMainHand } from "../enums";
+import type { IPlayer, IPlayerInfo, IPlayerStyle } from '../interfaces';
+import {
+  Country,
+  PlayerBackhand,
+  PlayerCategory,
+  PlayerMainHand
+} from '../enums';
 
 class PlayerStyleResponse implements IPlayerStyle {
-    mainHand: PlayerMainHand = undefined as unknown as PlayerMainHand;
+  mainHand: PlayerMainHand = undefined as unknown as PlayerMainHand;
 
-    backhand: PlayerBackhand = undefined as unknown as PlayerBackhand;
+  backhand: PlayerBackhand = undefined as unknown as PlayerBackhand;
 }
 
 class PlayerInfoResponse implements IPlayerInfo {
-    firstName: string = undefined as unknown as string;
-  
-    lastName: string = undefined as unknown as string;
-  
-    picture: string = undefined as unknown as string;
-  
-    dateOfBirth: string = undefined as unknown as string;
-  
-    country: Country = undefined as unknown as Country;
-  
-    category: PlayerCategory = undefined as unknown as PlayerCategory;
+  firstName: string = undefined as unknown as string;
+
+  lastName: string = undefined as unknown as string;
+
+  picture: string = undefined as unknown as string;
+
+  dateOfBirth: string = undefined as unknown as string;
+
+  country: Country = undefined as unknown as Country;
+
+  category: PlayerCategory = undefined as unknown as PlayerCategory;
 }
 
 class PlayerResponse implements IPlayer {
-    _id: string = undefined as unknown as string;
+  _id: string = undefined as unknown as string;
 
-    infos: PlayerInfoResponse = undefined as unknown as PlayerInfoResponse;
+  infos: PlayerInfoResponse = undefined as unknown as PlayerInfoResponse;
 
-    style: PlayerStyleResponse = undefined as unknown as PlayerStyleResponse;
+  style: PlayerStyleResponse = undefined as unknown as PlayerStyleResponse;
 
-    proSince: number = undefined as unknown as number;
-    
-    createdAt: string = undefined as unknown as string;
+  proSince: number = undefined as unknown as number;
 
-    updatedAt?: string | undefined;
+  createdAt: string = undefined as unknown as string;
 
-    deletedAt?: string | undefined;
+  updatedAt?: string | undefined;
+
+  deletedAt?: string | undefined;
 }
 
-export {
-    PlayerResponse,
-    PlayerInfoResponse,
-    PlayerStyleResponse
-}
+export { PlayerResponse, PlayerInfoResponse, PlayerStyleResponse };

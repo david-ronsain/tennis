@@ -13,7 +13,6 @@ export const CalendarRepository = datasource.then((source) =>
       limit: number
     ): Promise<CalendarResponse[]> {
       const cursor = source.getMongoRepository(CalendarEntity).aggregate([
-        { $match: filters },
         {
           $lookup: {
             from: 'tournaments',
@@ -28,6 +27,7 @@ export const CalendarRepository = datasource.then((source) =>
             preserveNullAndEmptyArrays: true
           }
         },
+        { $match: filters },
         { $skip: Number(skip) },
         { $limit: Number(limit) }
       ]);
@@ -40,14 +40,31 @@ export const CalendarRepository = datasource.then((source) =>
             : []
         );
     },
-    async count(
-      filters: Record<string, any>,
-      skip: number,
-      limit: number
-    ): Promise<number> {
-      return await source
-        .getMongoRepository(CalendarEntity)
-        .count(filters, { skip: Number(skip), limit: Number(limit) });
+    async count(filters: Record<string, any>): Promise<number> {
+      const cursor = source.getMongoRepository(CalendarEntity).aggregate([
+        {
+          $lookup: {
+            from: 'tournaments',
+            localField: 'tournament',
+            foreignField: '_id',
+            as: 'tournament'
+          }
+        },
+        {
+          $unwind: {
+            path: '$tournament',
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        { $match: filters },
+        {
+          $count: 'total'
+        }
+      ]);
+
+      return await cursor
+        .toArray()
+        .then((res: any[]) => (res.length ? (res[0].total as number) : 0));
     },
     findOneBy(where: any): Promise<CalendarEntity | null> {
       return source

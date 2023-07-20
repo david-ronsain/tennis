@@ -3,7 +3,7 @@ import { validateSync } from 'class-validator';
 import { MatchRepository } from '../repositories/matchRepository';
 import { HttpError } from 'routing-controllers';
 import { ObjectId } from 'mongodb';
-import { scorePoint, updateMatch } from '../helpers/helper';
+import { prepareFilters, scorePoint, updateMatch } from '../helpers/helper';
 import { Match, Team } from '../entities/MatchEntity';
 import { InvalidRequestError } from 'core/errors';
 import { MatchRequest } from 'core/requests';
@@ -22,78 +22,12 @@ export class MatchService {
       throw new InvalidRequestError(errors);
     }
 
-    const filters: { $and: any[] } = { $and: [] };
-
-    if (request.state) {
-      filters['$and'].push({ state: { $eq: request.state } });
-    }
-
-    if (request.calendar && request.calendar.length) {
-      filters['$and'].push({ calendar: { $eq: request.calendar } });
-    }
-
-    if (request.startDate?.length) {
-      filters['$and'].push({ startDate: { $gte: request.startDate } });
-    }
-
-    if (request.endDate?.length) {
-      filters['$and'].push({ startDate: { $gte: request.endDate } });
-    }
-
-    if (request.tournament?.length) {
-      filters['$and'].push({
-        'tournament._id': new ObjectId(request.tournament.toString())
-      });
-    }
-
-    if (request.name.length) {
-      filters['$and'].push({
-        $or: [
-          {
-            'team1.player1.infos.lastName': {
-              $regex: '.*' + request.name + '.*',
-              $options: 'i'
-            }
-          },
-          {
-            'team1.player2.infos.lastName': {
-              $regex: '.*' + request.name + '.*',
-              $options: 'i'
-            }
-          },
-          {
-            'team2.player1.infos.lastName': {
-              $regex: '.*' + request.name + '.*',
-              $options: 'i'
-            }
-          },
-          {
-            'team2.player2.infos.lastName': {
-              $regex: '.*' + request.name + '.*',
-              $options: 'i'
-            }
-          }
-        ]
-      });
-    }
-
-    if (request.category) {
-      filters['$and'].push({
-        $or: [
-          {
-            'team1.player1.infos.category': { $eq: request.category as string }
-          },
-          {
-            'team2.player1.infos.category': { $eq: request.category as string }
-          }
-        ]
-      });
-    }
+    const filters = prepareFilters(request);
 
     return await (
       await MatchRepository
     ).getList(
-      filters['$and'].length ? filters : {},
+      filters.$and.length ? filters : {},
       parseInt(request.skip.toString()) * parseInt(request.results.toString()),
       parseInt(request.results.toString())
     );
@@ -105,75 +39,9 @@ export class MatchService {
       throw new InvalidRequestError(errors);
     }
 
-    const filters: { $and: any[] } = { $and: [] };
+    const filters = prepareFilters(request);
 
-    if (request.state) {
-      filters['$and'].push({ state: { $eq: request.state } });
-    }
-
-    if (request.calendar && request.calendar.length) {
-      filters['$and'].push({ calendar: { $eq: request.calendar } });
-    }
-
-    if (request.startDate?.length) {
-      filters['$and'].push({ startDate: { $gte: request.startDate } });
-    }
-
-    if (request.endDate?.length) {
-      filters['$and'].push({ startDate: { $gte: request.endDate } });
-    }
-
-    if (request.tournament?.length) {
-      filters['$and'].push({
-        'tournament._id': new ObjectId(request.tournament.toString())
-      });
-    }
-
-    if (request.name.length) {
-      filters['$and'].push({
-        $or: [
-          {
-            'team1.player1.infos.lastName': {
-              $regex: '.*' + request.name + '.*',
-              $options: 'i'
-            }
-          },
-          {
-            'team1.player2.infos.lastName': {
-              $regex: '.*' + request.name + '.*',
-              $options: 'i'
-            }
-          },
-          {
-            'team2.player1.infos.lastName': {
-              $regex: '.*' + request.name + '.*',
-              $options: 'i'
-            }
-          },
-          {
-            'team2.player2.infos.lastName': {
-              $regex: '.*' + request.name + '.*',
-              $options: 'i'
-            }
-          }
-        ]
-      });
-    }
-
-    if (request.category) {
-      filters['$and'].push({
-        $or: [
-          {
-            'team1.player1.infos.category': { $eq: request.category as string }
-          },
-          {
-            'team2.player1.infos.category': { $eq: request.category as string }
-          }
-        ]
-      });
-    }
-
-    return (await MatchRepository).count(filters['$and'].length ? filters : {});
+    return (await MatchRepository).count(filters.$and.length ? filters : {});
   }
 
   /**
@@ -253,7 +121,7 @@ export class MatchService {
       throw new HttpError(404, 'player not found');
     }
     if (!match.team1.number || !match.team2.number) {
-      throw new HttpError(400, 'teams not affected');
+      throw new HttpError(400, 'teams not attributed');
     }
 
     const calendar = await axios
@@ -297,20 +165,12 @@ export class MatchService {
         new ObjectId(team.player1?.toString()),
         team.player2 ? new ObjectId(team.player2.toString()) : undefined
       );
-      match.team1.player1 = new ObjectId(team.player1?.toString());
-      if (match.team1.player2) {
-        match.team1.player2 = new ObjectId(team.player2?.toString());
-      }
     } else if (team.number === 2 && !match.team2.player1) {
       match.team2 = new Team(
         team.number ?? 2,
         new ObjectId(team.player1?.toString()),
         team.player2 ? new ObjectId(team.player2.toString()) : undefined
       );
-      match.team2.player1 = new ObjectId(team.player1?.toString());
-      if (match.team2.player2) {
-        match.team2.player2 = new ObjectId(team.player2?.toString());
-      }
     }
 
     return await (await MatchRepository)

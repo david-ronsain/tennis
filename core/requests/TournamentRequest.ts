@@ -38,15 +38,15 @@ class TournamentRequest {
 }
 
 class GetTournamentsRequest {
-  skip = 0;
+  skip? = 0;
 
-  results = 10;
+  results? = 10;
 
-  name = '';
+  name? = '';
 
-  category = undefined as unknown as TournamentCategory;
+  category? = undefined as unknown as TournamentCategory;
 
-  surface = undefined as unknown as TournamentSurface;
+  surface? = undefined as unknown as TournamentSurface;
 }
 
 export { TournamentRequest, GetTournamentsRequest };

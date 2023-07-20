@@ -1,8 +1,10 @@
-import { MatchRound } from 'core/enums'
+import { MatchRound, PlayerCategory } from 'core/enums'
 import { IMatch } from 'core/interfaces'
+import { ListMatchesRequest } from 'core/requests/MatchRequest'
+import { ObjectId } from 'mongodb'
 const { MatchState } = require('core/enums')
 const { MatchRequest } = require('core/requests')
-const { updateMatch, scorePoint } = require('../src/helpers/helper')
+const { updateMatch, scorePoint, prepareFilters } = require('../src/helpers/helper')
 const { EventEmitter } = require('events')
 const MatchEntity = require('../src/entities/MatchEntity').Match
 
@@ -20,12 +22,15 @@ describe('Testing the helper/updateMatch', () => {
         request.round = MatchRound.FINAL
         request.team1 = {
             number: 1,
-            player1: 'aaaaaaaaaaaaaaaaaaaaaaaa'
+            player1: 'aaaaaaaaaaaaaaaaaaaaaaaa',
+            player2: 'cccccccccccccccccccccccc'
         }
         request.team2 = {
             number: 2,
-            player1: 'bbbbbbbbbbbbbbbbbbbbbbbb'
+            player1: 'bbbbbbbbbbbbbbbbbbbbbbbb',
+            player2: 'dddddddddddddddddddddddd'
         }
+        request.state = MatchState.SUSPENDED
 
         updateMatch(match, request)
 
@@ -48,8 +53,16 @@ describe('Testing the helper/scorePoint', () => {
         player1: player1Team2
     }
     let match = new MatchEntity(request)
+    match._id = new ObjectId('111111111111')
+
+    it('should not update score', () => {
+        match.state = MatchState.SUSPENDED;
+        scorePoint(match, player1Team1)
+        expect(match.score).toBeUndefined()
+    })
 
     it('should add a point to team1', () => {
+        match = new MatchEntity(request)
         scorePoint(match, player1Team1)
         expect(match.score.points.toString()).toBe([[0, match.team1.number]].toString())
     })
@@ -146,6 +159,121 @@ describe('Testing the helper/scorePoint', () => {
         expect(match.score.history.toString()).toBe([[6, 4], [6, 0]].toString())
         expect(emitter.listenerCount('assignPlayerToNextMatch')).toBe(1)
     })
+
+    it('should declare team2 winner', () => {
+        resetScore(match)
+        match.score.sets = [[0, match.team2.number]]
+        match.score.history = [[4, 6]]
+        match.score.games = [[0, match.team2.number], [1, match.team2.number], [2, match.team2.number], [3, match.team2.number], [4, match.team2.number]]
+        scorePoint(match, player1Team2)
+        scorePoint(match, player1Team2)
+        scorePoint(match, player1Team2)
+        scorePoint(match, player1Team2)
+        
+        expect(match.team2.isWinner).toBe(true)
+        expect(match.state).toBe(MatchState.FINISHED)
+        expect(match.endDate).not.toBe(null)
+        expect(match.endDate).not.toBe(undefined)
+        expect(match.score.history.toString()).toBe([[4, 6], [0, 6]].toString())
+        expect(emitter.listenerCount('assignPlayerToNextMatch')).toBe(1)
+    })
+})
+
+describe('Testing the helper/prepareFilters', () => {
+    it('shoud return the calendar filter', () => {
+        const req = new ListMatchesRequest()
+        req.calendar = '111111111111';
+        const filters = prepareFilters(req)
+        expect(filters).toMatchObject({
+            $and: [{"calendar._id": {$eq: new ObjectId(req.calendar)}}]
+        })
+    })
+
+    it('shoud return the startDate filter', () => {
+        const req = new ListMatchesRequest()
+        req.startDate = '2023-07-05';
+        const filters = prepareFilters(req)
+        expect(filters).toMatchObject({
+            $and: [{startDate: {$gte: req.startDate}}]
+        })
+    })
+
+    it('shoud return the endDate filter', () => {
+        const req = new ListMatchesRequest()
+        req.endDate = '2023-07-05';
+        const filters = prepareFilters(req)
+        expect(filters).toMatchObject({
+            $and: [{startDate: {$lte: req.endDate}}]
+        })
+    })
+
+    it('shoud return the state filter', () => {
+        const req = new ListMatchesRequest()
+        req.state = MatchState.NOT_BEGUN;
+        const filters = prepareFilters(req)
+        expect(filters).toMatchObject({
+            $and: [{state: {$eq: MatchState.NOT_BEGUN}}]
+        })
+    })
+
+    it('shoud return the name filter', () => {
+        const req = new ListMatchesRequest()
+        req.name = 'test';
+        const filters = prepareFilters(req)
+        expect(filters).toMatchObject({
+            $and: [{$or: [
+                {
+                  'team1.player1.infos.lastName': {
+                    $regex: '.*' + req.name + '.*',
+                    $options: 'i'
+                  }
+                },
+                {
+                  'team1.player2.infos.lastName': {
+                    $regex: '.*' + req.name + '.*',
+                    $options: 'i'
+                  }
+                },
+                {
+                  'team2.player1.infos.lastName': {
+                    $regex: '.*' + req.name + '.*',
+                    $options: 'i'
+                  }
+                },
+                {
+                  'team2.player2.infos.lastName': {
+                    $regex: '.*' + req.name + '.*',
+                    $options: 'i'
+                  }
+                }
+              ]}]
+        })
+    })
+
+    it('shoud return the tournament filter', () => {
+        const req = new ListMatchesRequest()
+        req.tournament = '111111111111';
+        const filters = prepareFilters(req)
+        expect(filters).toMatchObject({
+            $and: [{"tournament._id": new ObjectId(req.tournament)}]
+        })
+    })
+
+    it('shoud return the category filter', () => {
+        const req = new ListMatchesRequest()
+        req.category = PlayerCategory.WTA;
+        const filters = prepareFilters(req)
+        expect(filters).toMatchObject({
+            $and: [{$or: [
+                {
+                  'team1.player1.infos.category': { $eq: PlayerCategory.WTA }
+                },
+                {
+                  'team2.player1.infos.category': { $eq: PlayerCategory.WTA }
+                }
+              ]}]
+        })
+    })
 })
 
 const resetScore = (match: IMatch) => {
@@ -154,5 +282,6 @@ const resetScore = (match: IMatch) => {
         match.score.games = []
         match.score.sets = []
         match.score.history = []
+        match.state = MatchState.NOT_BEGUN
     }
 }

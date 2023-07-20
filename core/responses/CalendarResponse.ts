@@ -1,6 +1,6 @@
-import type { ICalendar, ITournament } from "../interfaces";
-import { ObjectId } from "mongodb";
-import { MatchType, PlayerCategory } from "../enums";
+import type { ICalendar, ITournament } from '../interfaces';
+import { ObjectId } from 'mongodb';
+import { MatchType, PlayerCategory } from '../enums';
 
 class CalendarResponse implements ICalendar {
   _id: ObjectId | string = undefined as unknown as string;
@@ -16,6 +16,4 @@ class CalendarResponse implements ICalendar {
   draw?: Record<MatchType, Record<PlayerCategory, ObjectId[]>> | undefined;
 }
 
-export {
-    CalendarResponse
-}
+export { CalendarResponse };

@@ -1,6 +1,3 @@
-import { getNbMatchesForRound, getRounds } from './matchHelper'
+import { getNbMatchesForRound, getRounds } from './matchHelper';
 
-export {
-    getNbMatchesForRound,
-    getRounds,
-  }
+export { getNbMatchesForRound, getRounds };

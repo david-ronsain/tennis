@@ -1,11 +1,49 @@
 const { TournamentCategory, Country, TournamentSurface, MatchRound } = require('core/enums')
 const { drawMatches } = require('back-calendar/src/helpers/helper')
-import { ICalendar, ITournament } from 'core/interfaces'
+const dotenv = require('dotenv');
+dotenv.config({path: '.env.test'});
+const config = require('core/config/config').config;
+import { ICalendar, IPlayer, ITournament } from 'core/interfaces'
 import { Match } from '../src/entities/MatchEntity'
 const { MatchRequest } = require('core/requests')
 const { assignPlayerToNextMatchCallback } = require('../src/subscribers')
 import { IAssignPlayerEvent } from 'core/events'
 import { ObjectId } from 'mongodb'
+const MongoClient = require('mongodb').MongoClient;
+const client = new MongoClient(config.CORE.DB.MONGO.TYPE + '://' + config.CORE.DB.MONGO.HOST + ':' + config.CORE.DB.MONGO.PORT);
+const players = require('back-players/dist/src/seeds/players.json');
+import axios from "axios";
+
+jest.mock("axios");
+
+(axios.get as jest.Mock).mockImplementation((url) => {
+    if (url.startsWith(`${config.PLAYERS_API.URL}`)) {
+        return Promise.resolve({data: [players[0], players[1]]})
+    }
+});
+(axios.post as jest.Mock).mockImplementation((url: string) => {
+    if (url.startsWith(`${config.MATCHES_API.URL}`)) {
+        return Promise.resolve({data: {_id: new ObjectId()}})
+    }
+});
+
+
+/* Connecting to the database before each test. */
+beforeAll(async () => {
+    await client.connect();
+    await client.db(config.CORE.DB.MONGO.DB_NAME).collection('players').insertMany(players)
+    const cursorPlayers = await client.db(config.CORE.DB.MONGO.DB_NAME).collection('players').find();
+    (await cursorPlayers.toArray()).forEach((row: IPlayer) => {
+        players.find((e: IPlayer) => e.infos.lastName === row.infos.lastName)._id = row._id.toString()
+    })
+});
+
+/* Closing database connection after each test. */
+afterAll(async () => {
+    await client.db(config.CORE.DB.MONGO.DB_NAME).collection('players').drop()
+    await client.close();
+});
+
 
 describe('testing assignPlayerToNextMatchEvent', () => {
     const tournament: ITournament = {

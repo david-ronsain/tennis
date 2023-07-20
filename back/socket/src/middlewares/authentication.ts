@@ -5,7 +5,7 @@ import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 @Middleware()
 export class AuthenticationMiddleware implements MiddlewareInterface {
   use(
-    socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>,
+    socket: Socket<DefaultEventsMap, DefaultEventsMap>,
     next: (err?: any) => any
   ) {
     console.log(socket);

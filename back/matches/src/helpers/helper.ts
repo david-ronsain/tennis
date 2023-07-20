@@ -6,6 +6,7 @@ import { IAssignPlayerEvent } from 'core/events';
 import { ICalendar, ITournament } from 'core/interfaces';
 import { ObjectId } from 'mongodb';
 import { eventManager } from '../subscribers';
+import { ListMatchesRequest } from 'core/requests/MatchRequest';
 
 const updateMatch = (match: MatchEntity, request: MatchRequest): void => {
   match.startDate = request.startDate;
@@ -125,11 +126,11 @@ const scorePoint = (
         match.team2.isWinner = true;
       }
 
-      if (match.round !== MatchRound.FINAL) {
+      if (match.round !== MatchRound.FINAL && match._id) {
         eventManager.emit('assignPlayerToNextMatch', {
           round: match.round,
           team: match.team1.isWinner ? match.team1 : match.team2,
-          _id: match._id?.toString(),
+          _id: match._id.toString(),
           number: match.number,
           calendar,
           tournament
@@ -139,4 +140,78 @@ const scorePoint = (
   }
 };
 
-export { updateMatch, scorePoint };
+const prepareFilters = (request: ListMatchesRequest): { $and: any[] } => {
+  const filters: { $and: any[] } = { $and: [] };
+
+  if (request.state) {
+    filters.$and.push({ state: { $eq: request.state } });
+  }
+
+  if (request.calendar && request.calendar.length) {
+    filters.$and.push({
+      'calendar._id': { $eq: new ObjectId(request.calendar) }
+    });
+  }
+
+  if (request.startDate.length) {
+    filters.$and.push({ startDate: { $gte: request.startDate } });
+  }
+
+  if (request.endDate.length) {
+    filters.$and.push({ startDate: { $lte: request.endDate } });
+  }
+
+  if (request.tournament.length) {
+    filters.$and.push({
+      'tournament._id': new ObjectId(request.tournament.toString())
+    });
+  }
+
+  if (request.name.length) {
+    filters.$and.push({
+      $or: [
+        {
+          'team1.player1.infos.lastName': {
+            $regex: '.*' + request.name + '.*',
+            $options: 'i'
+          }
+        },
+        {
+          'team1.player2.infos.lastName': {
+            $regex: '.*' + request.name + '.*',
+            $options: 'i'
+          }
+        },
+        {
+          'team2.player1.infos.lastName': {
+            $regex: '.*' + request.name + '.*',
+            $options: 'i'
+          }
+        },
+        {
+          'team2.player2.infos.lastName': {
+            $regex: '.*' + request.name + '.*',
+            $options: 'i'
+          }
+        }
+      ]
+    });
+  }
+
+  if (request.category) {
+    filters.$and.push({
+      $or: [
+        {
+          'team1.player1.infos.category': { $eq: request.category as string }
+        },
+        {
+          'team2.player1.infos.category': { $eq: request.category as string }
+        }
+      ]
+    });
+  }
+
+  return filters;
+};
+
+export { updateMatch, scorePoint, prepareFilters };

@@ -6,7 +6,7 @@ import {
   Min
 } from 'class-validator';
 import { ObjectId } from 'mongodb';
-import { IsAfter } from 'core/validators/IsAfter';
+import { IsAfter } from '../validators/IsAfter';
 
 export class CalendarRequest {
   @IsNotEmpty()
@@ -29,17 +29,17 @@ export class CalendarRequest {
 }
 
 export class GetCalendarRequest {
-  skip = 0;
+  skip? = 0;
 
-  results = 10;
+  results? = 10;
 
-  name = '';
+  name? = '';
 
-  tournament = '';
+  tournament? = '';
 
-  startDate = '';
+  startDate? = '';
 
-  endDate = '';
+  endDate? = '';
 
-  exclude = '';
+  exclude? = '';
 }

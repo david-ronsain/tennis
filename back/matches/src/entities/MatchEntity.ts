@@ -47,7 +47,7 @@ class Team implements ITeam {
   @Expose()
   @Transform(
     (params: { obj: { player1?: ObjectId } }) =>
-      params.obj?.player1?.toString() ?? ''
+      params.obj.player1?.toString() ?? ''
   )
   @ObjectIdColumn()
   player1?: ObjectId | string;
@@ -55,7 +55,7 @@ class Team implements ITeam {
   @Expose()
   @Transform(
     (params: { obj: { player2?: ObjectId } }) =>
-      params.obj?.player2?.toString() ?? ''
+      params.obj.player2?.toString() ?? ''
   )
   @ObjectIdColumn()
   player2?: ObjectId | string;
@@ -86,17 +86,17 @@ class Score implements IScore {
 class Match implements IMatch {
   constructor(request: MatchRequest) {
     this.team1 = request.team1 as Team;
-    if (typeof this.team1?.player1 === 'string') {
+    if (this.team1 && typeof this.team1.player1 === 'string') {
       this.team1.player1 = new ObjectId(this.team1.player1);
     }
-    if (typeof this.team1?.player2 === 'string') {
+    if (this.team1 && typeof this.team1.player2 === 'string') {
       this.team1.player2 = new ObjectId(this.team1.player2);
     }
     this.team2 = request.team2 as Team;
-    if (typeof this.team2?.player1 === 'string') {
+    if (this.team2 && typeof this.team2.player1 === 'string') {
       this.team2.player1 = new ObjectId(this.team2.player1);
     }
-    if (typeof this.team2?.player2 === 'string') {
+    if (this.team2 && typeof this.team2.player2 === 'string') {
       this.team2.player2 = new ObjectId(this.team2.player2);
     }
     this.score = request.score;

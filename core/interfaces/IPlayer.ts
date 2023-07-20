@@ -40,8 +40,4 @@ interface IPlayerStyle {
   backhand: PlayerBackhand;
 }
 
-export { 
-  type IPlayer, 
-  type IPlayerInfo, 
-  type IPlayerStyle
- };
+export { type IPlayer, type IPlayerInfo, type IPlayerStyle };
